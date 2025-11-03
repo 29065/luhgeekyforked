@@ -290,6 +290,44 @@ function toggleCheatMenu(enabled) {
 // call this inside your settings UI setup:
 createCheatToggle();
 toggleCheatMenu(cheatMode);
+// Key for saving cheat mode in localStorage
+const CHEAT_MODE_KEY = 'cheatModeEnabled';
+
+// Load saved cheat mode or default to false
+let cheatMode = saving.loadSetting(CHEAT_MODE_KEY) || false;
+
+// Function to create the cheat toggle UI in settings
+function createCheatToggle() {
+  const settingsContainer = document.getElementById('settingsContainer');
+  if (!settingsContainer) return;
+
+  const row = document.createElement('div');
+  row.className = 'setting-row';
+  row.style.marginBottom = '10px';
+
+  const label = document.createElement('label');
+  label.textContent = 'Cheat Mode';
+  label.style.marginRight = '10px';
+  row.appendChild(label);
+
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = cheatMode;
+  checkbox.onchange = () => {
+    cheatMode = checkbox.checked;
+    saving.saveSetting(CHEAT_MODE_KEY, cheatMode);
+    setCheatMode(cheatMode); // from cheats.js
+  };
+  row.appendChild(checkbox);
+
+  settingsContainer.appendChild(row);
+
+  // Initial toggle
+  setCheatMode(cheatMode);
+}
+
+// Call this during settings setup
+createCheatToggle();
 
         if (Game.tech.isUnlocked('unlockDestruction')) {
             if(Game.settings.entries.redDestroyButtons === true){
