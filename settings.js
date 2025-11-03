@@ -1,4 +1,4 @@
-Game.settings = (function() {
+Game.settings = (function(){
 
     var autoSaveMapping = {
         '30secs': 30 * 1000,
@@ -19,7 +19,8 @@ Game.settings = (function() {
             redDestroyButtons: false,
             hideCompleted: false,
             theme: 'base',
-            autoSaveInterval: 30 * 1000
+            autoSaveInterval: 30 * 1000,
+            cheatModeEnabled: false // <-- added cheat mode setting
         },
         elementCache: {},
         reapplyTheme: true
@@ -43,17 +44,22 @@ Game.settings = (function() {
 
     instance.turnRedOnNegative = function(value, id) {
         var element = this.getEl(id);
-        if(element.length === 0) return false;
+        if(element.length === 0) {
+            console.error("Element not found: " + id);
+            return;
+        }
 
         if(value < 0){
-            if(this.entries.boldEnabled){
+            if(this.entries.boldEnabled === true){
                 element.addClass('red bold');
             } else {
                 element.addClass('red');
                 element.removeClass('bold');
             }
+
             return true;
-        } else {
+        }
+        else{
             element.removeClass('red bold');
             return false;
         }
@@ -61,32 +67,40 @@ Game.settings = (function() {
 
     instance.turnRed = function(value, target, id) {
         var element = this.getEl(id);
-        if(element.length === 0) return;
+        if(element.length === 0) {
+            console.error("Element not found: " + id);
+            return;
+        }
 
         if(value < target){
-            if(this.entries.boldEnabled){
+            if(this.entries.boldEnabled === true){
                 element.addClass('red bold');
             } else {
                 element.addClass('red');
                 element.removeClass('bold');
             }
-        } else {
+        }
+        else{
             element.removeClass('red bold');
         }
     };
 
     instance.turnRedOrGreen = function(value, target, id) {
         var element = this.getEl(id);
-        if(element.length === 0) return;
+        if(element.length === 0) {
+            console.error("Element not found: " + id);
+            return;
+        }
 
         if(value === 0){
-            if(this.entries.boldEnabled){
+            if(this.entries.boldEnabled === true){
                 element.addClass('red bold');
             } else {
                 element.addClass('red');
                 element.removeClass('bold');
             }
-        } else {
+        }
+        else{
             element.removeClass('red bold');
         }
 
@@ -107,13 +121,14 @@ Game.settings = (function() {
     instance.load = function(data) {
         this.loadLegacy(data);
 
-        if(data.settings && data.settings.version === this.dataVersion) {
-            for(var id in data.settings.entries) {
-                this.entries[id] = data.settings.entries[id];
+        if(data.settings) {
+            if(data.settings.version && data.settings.version === this.dataVersion) {
+                for(var id in data.settings.entries) {
+                    this.entries[id] = data.settings.entries[id];
+                }
             }
         }
 
-        // Apply settings to UI elements
         $('#formatSelector').val(this.entries.formatter);
         $('#themeSelector').val(this.entries.theme);
         $('#boldEnabled').prop('checked', this.entries.boldEnabled);
@@ -124,41 +139,61 @@ Game.settings = (function() {
         $('#redDestroyButtons').prop('checked', this.entries.redDestroyButtons);
         $('#hideCompleted').prop('checked', this.entries.hideCompleted);
 
-        // Update sidebar heights
-        const sideTabs = document.getElementsByClassName("sideTab");
-        for(var i = 0; i < sideTabs.length; i++){
-            sideTabs[i].style.height = this.entries.sidebarCompressed ? "30px" : "60px";
+        // Cheat mode toggle
+        $('#cheatModeEnabled').prop('checked', this.entries.cheatModeEnabled);
+        setCheatMode(this.entries.cheatModeEnabled); // call cheats.js toggle
+
+        if(Game.settings.entries.sidebarCompressed === true){
+            for(var i = 0; i < document.getElementsByClassName("sideTab").length; i ++){
+                document.getElementsByClassName("sideTab")[i].style.height = "30px";
+            }
+        } else {
+            for(var i = 0; i < document.getElementsByClassName("sideTab").length; i ++){
+                document.getElementsByClassName("sideTab")[i].style.height = "60px";
+            }
         }
 
-        // Update gain buttons
-        const gainButtons = document.getElementsByClassName("gainButton");
-        for(var i = 0; i < gainButtons.length; i++){
-            gainButtons[i].className = this.entries.gainButtonsHidden ? "gainButton hidden" : "gainButton";
+        if(Game.settings.entries.gainButtonsHidden === true){
+            for(var i = 0; i < document.getElementsByClassName("gainButton").length; i ++){
+                document.getElementsByClassName("gainButton")[i].className = "gainButton hidden";
+            }
+        } else {
+            for(var i = 0; i < document.getElementsByClassName("gainButton").length; i ++){
+                document.getElementsByClassName("gainButton")[i].className = "gainButton";
+            }
         }
 
-        // Update completed items
-        const completed = document.getElementsByClassName("completed");
-        for(var i = 0; i < completed.length; i++){
-            completed[i].className = this.entries.hideCompleted ? "completed hidden" : "completed";
+        if(Game.settings.entries.hideCompleted === true){
+            for(var i = 0; i < document.getElementsByClassName("completed").length; i ++){
+                document.getElementsByClassName("completed")[i].className = "completed hidden";
+            }
+        } else {
+            for(var i = 0; i < document.getElementsByClassName("completed").length; i ++){
+                document.getElementsByClassName("completed")[i].className = "completed";
+            }
         }
 
-        // Update autosave selector
         for(var id in autoSaveMapping) {
             var element = $('#' + id);
-            element.val(this.entries.autoSaveInterval === autoSaveMapping[id] ? 'on' : 'off');
+            if(this.entries.autoSaveInterval === autoSaveMapping[id]) {
+                element.val('on');
+            } else {
+                element.val('off');
+            }
         }
 
         this.reapplyTheme = true;
     };
 
     instance.loadLegacy = function(data) {
-        if(data.currentTheme) {
-            this.set('theme', data.currentTheme);
-        }
+        if(data.currentTheme) { this.set('theme', data.currentTheme); }
     };
 
     instance.set = function(key, value) {
         this.entries[key] = value;
+
+        // Automatically update cheat mode if relevant
+        if(key === 'cheatModeEnabled') setCheatMode(value);
     };
 
     instance.initialise = function() {
@@ -177,10 +212,7 @@ Game.settings = (function() {
 
         $('#sidebarCompressed').change(function(){
             Game.settings.set('sidebarCompressed', $(this).is(':checked'));
-            const sideTabs = document.getElementsByClassName("sideTab");
-            for(var i = 0; i < sideTabs.length; i++){
-                sideTabs[i].style.height = Game.settings.entries.sidebarCompressed ? "30px" : "60px";
-            }
+            Game.settings.update(); // reapply sidebar heights
         });
 
         $('#notificationsEnabled').change(function(){
@@ -193,32 +225,44 @@ Game.settings = (function() {
 
         $('#gainButtonsHidden').change(function(){
             Game.settings.set('gainButtonsHidden', $(this).is(':checked'));
-            const gainButtons = document.getElementsByClassName("gainButton");
-            for(var i = 0; i < gainButtons.length; i++){
-                gainButtons[i].className = Game.settings.entries.gainButtonsHidden ? "gainButton hidden" : "gainButton";
-            }
+            Game.settings.update();
         });
 
         $('#redDestroyButtons').change(function(){
             Game.settings.set('redDestroyButtons', $(this).is(':checked'));
-            if(Game.tech.isPurchased('unlockDestruction')) {
-                const destroyBtns = document.getElementsByClassName("destroy");
-                for(var i = 0; i < destroyBtns.length; i++){
-                    destroyBtns[i].className = Game.settings.entries.redDestroyButtons ? "btn btn-danger destroy" : "btn btn-default destroy";
-                }
-            }
+            Game.settings.update();
         });
 
         $('#hideCompleted').change(function(){
             Game.settings.set('hideCompleted', $(this).is(':checked'));
-            const completed = document.getElementsByClassName("completed");
-            for(var i = 0; i < completed.length; i++){
-                completed[i].className = Game.settings.entries.hideCompleted ? "completed hidden" : "completed";
-            }
+            Game.settings.update();
         });
 
-        // AutoSave mapping
-        for(var id in autoSaveMapping) {
+        // Cheat mode toggle UI
+        const settingsContainer = document.getElementById('settingsContainer');
+        if(settingsContainer) {
+            const row = document.createElement('div');
+            row.className = 'setting-row';
+            row.style.marginBottom = '10px';
+
+            const label = document.createElement('label');
+            label.textContent = 'Cheat Mode';
+            label.style.marginRight = '10px';
+            row.appendChild(label);
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = 'cheatModeEnabled';
+            checkbox.checked = instance.entries.cheatModeEnabled;
+            checkbox.onchange = () => {
+                Game.settings.set('cheatModeEnabled', checkbox.checked);
+            };
+            row.appendChild(checkbox);
+
+            settingsContainer.appendChild(row);
+        }
+
+        for (var id in autoSaveMapping) {
             var element = $('#' + id);
             element.change({val: autoSaveMapping[id]}, function(args){
                 Game.settings.set('autoSaveInterval', args.data.val);
@@ -227,27 +271,16 @@ Game.settings = (function() {
     };
 
     instance.update = function(delta) {
-        if(this.reapplyTheme) {
+        if(this.reapplyTheme === true) {
             this.reapplyTheme = false;
             this.updateTheme();
         }
-    };
 
-    instance.updateTheme = function() {
-        var element = $('#theme_css');
-        if(element.length === 0) return;
-
-        if(this.entries.theme === "base") {
-            element.attr('href', 'lib/bootstrap.min.css');
+        // Reapply sidebar/gain/completed heights/classes
+        if(this.entries.sidebarCompressed === true){
+            $('.sideTab').css('height', '30px');
         } else {
-            element.attr('href', 'styles/' + this.entries.theme + '-bootstrap.min.css');
+            $('.sideTab').css('height', '60px');
         }
-    };
 
-    instance.updateCompanyName = function() {
-        document.getElementById("companyName").textContent = companyName;
-    };
-
-    return instance;
-
-}());
+        if(this.entries.gainButtonsHidden === tr
