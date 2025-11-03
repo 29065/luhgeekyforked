@@ -1,31 +1,78 @@
 // cheats.js
-function initCheatMenu() {
-  const container = $('#cheatContainer');
-  container.empty();
 
-  const resourceList = Object.keys(resources); // adapt to your resource data structure
-  resourceList.forEach(name => {
-    const res = resources[name];
-    const row = $('<div class="cheat-row">')
-      .append($('<span>').text(`${res.name || name}`))
-      .append($('<button>').text(`+100K ${res.name || name}`).click(() => {
-        if (!cheatMode) return alert('Cheats disabled.');
-        res.amount += 100000;
-        res.updateDisplay && res.updateDisplay();
-      }))
-      .append($('<button>').text(`Double ${res.name || name} Storage`).click(() => {
-        if (!cheatMode) return alert('Cheats disabled.');
-        res.storage *= 2;
-        res.updateDisplay && res.updateDisplay();
-      }));
-    container.append(row);
-  });
-}
-window.addEventListener('load', () => {
+// Global cheat mode toggle
+let cheatMode = false;
+
+// Utility to safely get resources after game loads
+function waitForResources(callback) {
   const tryInit = setInterval(() => {
     if (window.resources && Object.keys(window.resources).length) {
       clearInterval(tryInit);
-      initCheatMenu();
+      callback();
     }
-  }, 500);
+  }, 100); // check every 100ms
+}
+
+// Initialize cheat menu
+function initCheatMenu() {
+  const container = document.getElementById('cheatContainer');
+  if (!container) return;
+
+  container.innerHTML = ''; // Clear any existing content
+
+  const resourceKeys = Object.keys(resources);
+
+  resourceKeys.forEach(key => {
+    const res = resources[key];
+
+    // Row container
+    const row = document.createElement('div');
+    row.className = 'cheat-row';
+    row.style.marginBottom = '8px';
+
+    // Resource label
+    const label = document.createElement('span');
+    label.textContent = res.name || key;
+    label.style.marginRight = '10px';
+    row.appendChild(label);
+
+    // Add 100K button
+    const addBtn = document.createElement('button');
+    addBtn.textContent = `+100K`;
+    addBtn.style.marginRight = '5px';
+    addBtn.onclick = () => {
+      if (!cheatMode) return alert('Cheats are disabled.');
+      res.amount += 100000;
+      if (res.updateDisplay) res.updateDisplay();
+    };
+    row.appendChild(addBtn);
+
+    // Double storage button
+    const storageBtn = document.createElement('button');
+    storageBtn.textContent = `×2 Storage`;
+    storageBtn.onclick = () => {
+      if (!cheatMode) return alert('Cheats are disabled.');
+      res.storage = (res.storage || 0) * 2;
+      if (res.updateDisplay) res.updateDisplay();
+    };
+    row.appendChild(storageBtn);
+
+    container.appendChild(row);
+  });
+}
+
+// Initialize cheat menu after game loads
+waitForResources(() => {
+  initCheatMenu();
 });
+
+// Toggle cheat mode from settings
+function setCheatMode(enabled) {
+  cheatMode = enabled;
+  const cheatTab = document.getElementById('tab-cheats');
+  if (cheatTab) cheatTab.style.display = cheatMode ? 'inline-block' : 'none';
+}
+
+// Example: call setCheatMode(true/false) from settings.js toggle
+// Make sure settings.js calls:
+// setCheatMode(cheatMode);
