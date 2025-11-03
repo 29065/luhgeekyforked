@@ -261,6 +261,35 @@ Game.settings = (function(){
                 }
             }
         });
+const CHEAT_MODE_KEY = 'cheatModeEnabled';
+let cheatMode = saving.loadSetting(CHEAT_MODE_KEY) || false;
+
+function createCheatToggle() {
+  const row = $('<div class="setting-row">')
+    .append($('<label>').text('Cheat Mode'))
+    .append($('<input type="checkbox">')
+      .prop('checked', cheatMode)
+      .on('change', function() {
+        cheatMode = this.checked;
+        saving.saveSetting(CHEAT_MODE_KEY, cheatMode);
+        toggleCheatMenu(cheatMode);
+      })
+    );
+  $('#settingsContainer').append(row);
+}
+
+function toggleCheatMenu(enabled) {
+  if (enabled) {
+    $('#tab-cheats').show();
+  } else {
+    $('#tab-cheats').hide();
+    $('#cheats').hide();
+  }
+}
+
+// call this inside your settings UI setup:
+createCheatToggle();
+toggleCheatMenu(cheatMode);
 
         if (Game.tech.isUnlocked('unlockDestruction')) {
             if(Game.settings.entries.redDestroyButtons === true){
