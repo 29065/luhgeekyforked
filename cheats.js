@@ -22,6 +22,15 @@ function initCheatMenu() {
   });
 }
 
-$(document).ready(() => {
-  initCheatMenu();
+window.addEventListener('load', () => {
+  if (typeof resources !== 'undefined') {
+    initCheatMenu();
+  } else {
+    const wait = setInterval(() => {
+      if (typeof resources !== 'undefined') {
+        clearInterval(wait);
+        initCheatMenu();
+      }
+    }, 500);
+  }
 });
