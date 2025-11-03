@@ -21,16 +21,11 @@ function initCheatMenu() {
     container.append(row);
   });
 }
-
 window.addEventListener('load', () => {
-  if (typeof resources !== 'undefined') {
-    initCheatMenu();
-  } else {
-    const wait = setInterval(() => {
-      if (typeof resources !== 'undefined') {
-        clearInterval(wait);
-        initCheatMenu();
-      }
-    }, 500);
-  }
+  const tryInit = setInterval(() => {
+    if (window.resources && Object.keys(window.resources).length) {
+      clearInterval(tryInit);
+      initCheatMenu();
+    }
+  }, 500);
 });
