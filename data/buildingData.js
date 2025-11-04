@@ -29,7 +29,7 @@ Game.buildingData = (function () {
         desc: 'Gains Energy slowly from the sun without using any resources.',
         resource: 'energy',
         resourcePerSecond: {
-            'energy': 1.5
+            'energy': 105
         },
         cost: {
             'metal': 30,
@@ -348,7 +348,7 @@ Game.buildingData = (function () {
         desc: 'Heavy Drills mine Metal at mass.',
         resource: 'metal',
         resourcePerSecond: {
-            'energy': -2,
+            'energy': +2,
             'metal': 8
         },
         cost: {
@@ -363,8 +363,8 @@ Game.buildingData = (function () {
         desc: 'Giga Drills extract Metal at colossal speeds.',
         resource: 'metal',
         resourcePerSecond: {
-            'energy': -9,
-            'metal': 108
+            'energy': +9,
+            'metal': 1008
         },
         cost: {
             'lunarite': 2800,
@@ -408,8 +408,8 @@ Game.buildingData = (function () {
         desc: 'Advanced Drills mine gem at mass. Because of the toughness of the drill needed it is slower than the heavy drill.',
         resource: 'gem',
         resourcePerSecond: {
-            'energy': -2,
-            'gem': 4
+            'energy': +2,
+            'gem': 400
         },
         cost: {
             'metal': 120,
