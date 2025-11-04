@@ -139,29 +139,7 @@ Game.settings = (function(){
         $('#redDestroyButtons').prop('checked', this.entries.redDestroyButtons);
         $('#hideCompleted').prop('checked', this.entries.hideCompleted);
 
-        // Cheat mode toggle
-        $('#cheatModeEnabled').prop('checked', this.entries.cheatModeEnabled);
-        setCheatMode(this.entries.cheatModeEnabled); // call cheats.js toggle
-
-        if(Game.settings.entries.sidebarCompressed === true){
-            for(var i = 0; i < document.getElementsByClassName("sideTab").length; i ++){
-                document.getElementsByClassName("sideTab")[i].style.height = "30px";
-            }
-        } else {
-            for(var i = 0; i < document.getElementsByClassName("sideTab").length; i ++){
-                document.getElementsByClassName("sideTab")[i].style.height = "60px";
-            }
-        }
-
-        if(Game.settings.entries.gainButtonsHidden === true){
-            for(var i = 0; i < document.getElementsByClassName("gainButton").length; i ++){
-                document.getElementsByClassName("gainButton")[i].className = "gainButton hidden";
-            }
-        } else {
-            for(var i = 0; i < document.getElementsByClassName("gainButton").length; i ++){
-                document.getElementsByClassName("gainButton")[i].className = "gainButton";
-            }
-        }
+        
 
         if(Game.settings.entries.hideCompleted === true){
             for(var i = 0; i < document.getElementsByClassName("completed").length; i ++){
@@ -238,43 +216,7 @@ Game.settings = (function(){
             Game.settings.update();
         });
 
-        // Cheat mode toggle UI
-        const settingsContainer = document.getElementById('settingsContainer');
-        if(settingsContainer) {
-            const row = document.createElement('div');
-            row.className = 'setting-row';
-            row.style.marginBottom = '10px';
 
-            const label = document.createElement('label');
-            label.textContent = 'Cheat Mode';
-            label.style.marginRight = '10px';
-            row.appendChild(label);
-
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = 'cheatModeEnabled';
-            checkbox.checked = instance.entries.cheatModeEnabled;
-            checkbox.onchange = () => {
-                Game.settings.set('cheatModeEnabled', checkbox.checked);
-            };
-            row.appendChild(checkbox);
-
-            settingsContainer.appendChild(row);
-        }
-
-        for (var id in autoSaveMapping) {
-            var element = $('#' + id);
-            element.change({val: autoSaveMapping[id]}, function(args){
-                Game.settings.set('autoSaveInterval', args.data.val);
-            });
-        }
-    };
-
-    instance.update = function(delta) {
-        if(this.reapplyTheme === true) {
-            this.reapplyTheme = false;
-            this.updateTheme();
-        }
 
         // Reapply sidebar/gain/completed heights/classes
         if(this.entries.sidebarCompressed === true){
