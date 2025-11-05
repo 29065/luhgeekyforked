@@ -43,7 +43,7 @@ Game.resourceData = (function () {
         desc: 'Energy is created by power sources such as steam engines, solar power and advances even to fusion power and nuclear energy. The maximum you can hold to start with is 100,000 Energy, but batteries are unlockable which can increase this.',
         icon: 'energyIcon',
         category: 'energy',
-        baseCapacity: 5000000,
+        baseCapacity: 50000,
         unlocked: false
     };
 
@@ -83,7 +83,7 @@ Game.resourceData = (function () {
         desc: 'Oil is pumped up from the ground and is used to build Tier 2 resource gatherers.',
         icon: 'oilIcon',
         category: 'earth',
-        baseCapacity: 500000,
+        baseCapacity: 50,
         unlocked: false
     };
 
@@ -101,7 +101,7 @@ Game.resourceData = (function () {
         desc: 'Gems are one of the primary resources. They are used for advanced machines and for powerful tools and components. They are more useful in later game.',
         icon: 'gemIcon',
         category: 'earth',
-        baseCapacity: 5000000,
+        baseCapacity: 50,
         unlocked: true
     };
 
@@ -119,7 +119,7 @@ Game.resourceData = (function () {
         desc: 'Wood is one of the primary resources. It is used more often in early game for tools and buildings.',
         icon: 'woodIcon',
         category: 'earth',
-        baseCapacity: 5000000,
+        baseCapacity: 50,
         unlocked: true
     };
 
